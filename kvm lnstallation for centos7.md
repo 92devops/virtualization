@@ -68,17 +68,17 @@ irqbypass              13503  1 kvm
  2     centos7.0                      running
 ```
 
-```
-~]# qemu-img  create -f raw /opt/CentOS7-7.6-x86_64.raw 10G
-~]# virt-install --name centos7.1 --os-type=linux --ram 1024 --cdrom=/tmp/CentOS-7-x86_64-Everything-1810.iso  --disk=/opt/CentOS7-7.6-x86_64.raw --network=default --graphics vnc,listen=0.0.0.0 --noautoconsole
-```
-
-## 添加桥接接口
+使用 virt-install 安装虚拟机, 使用 vnc 连接上图形界面进行操作
 
 ```
-~]# brctl addbr br0 && \
-    brctl addif br0 eth0 && \
-    ip addr del dev eth0 192.168.124.26/24  && \
-    ifconfig  br0 192.168.124.26/24 up && \
-    route add default gw 192.168.124.1 && iptables -F
+~]# qemu-img  create -f qcow2 /opt/centos7.1.qcow2 20G
+~]# virt-install --name centos7.1   \
+                 --virt-type  kvm \
+                 --memory 512,maxmemory=1024 \
+                 --vcpus 2 \
+                 --cdrom /tmp/CentOS-7-x86_64-Everything-1810.iso  \
+                 --os-variant rhel7 --disk /opt/centos7.1.qcow2  \
+                 --network default \
+                 --graphics vnc,listen=0.0.0.0,port=5910 \
+                 --noautoconsole
 ```
