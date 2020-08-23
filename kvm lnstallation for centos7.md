@@ -65,7 +65,7 @@ irqbypass              13503  1 kvm
 ~]# virsh list
  Id    名称                         状态
 ----------------------------------------------------
- 2     centos7.0                      running
+ 1     centos7.0                      running
 ```
 
 使用 virt-install 安装虚拟机, 使用 vnc 连接上图形界面进行操作
@@ -73,7 +73,7 @@ irqbypass              13503  1 kvm
 ```
 ~]# qemu-img  create -f qcow2 /opt/centos7.1.qcow2 20G
 ~]# virt-install --name centos7.1   \
-                 --virt-type  kvm \
+                 --os-type kvm \
                  --memory 512,maxmemory=1024 \
                  --vcpus 2 \
                  --cdrom /tmp/CentOS-7-x86_64-Everything-1810.iso  \
@@ -81,4 +81,26 @@ irqbypass              13503  1 kvm
                  --network default \
                  --graphics vnc,listen=0.0.0.0,port=5910 \
                  --noautoconsole
+```
+
+## 桥接模式
+
+```
+brctl addbr br0
+ip link set  br0 up
+brctl addif br0 eth0
+ip addr del dev eth0 192.168.124.19/24
+ip addr add 192.168.124.19/24 br0
+```
+```
+qemu-img  create -f qcow2 /opt/centos7.2.qcow2 10G
+virt-install --name centos7.2   \
+                --os-type kvm \
+                --memory 512,maxmemory=1024 \
+                --vcpus 2 \
+                --cdrom /tmp/CentOS-7-x86_64-Everything-1810.iso  \
+                --os-variant rhel7 --disk /opt/centos7.2.qcow2  \
+                --network bridge=br0,model=virtio \
+                --graphics vnc,listen=0.0.0.0,port=5911 \
+                --noautoconsole
 ```
